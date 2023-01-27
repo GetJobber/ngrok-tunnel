@@ -7,6 +7,11 @@ module Ngrok
   class FetchUrlError < StandardError; end
   class Error < StandardError; end
 
+
+  ALLOW_HOSTS = [
+    "localhost.test"
+  ].freeze
+
   class Tunnel
 
     class << self
@@ -131,9 +136,10 @@ module Ngrok
       def create_empty_config_file
         tmp = Tempfile.new('ngrok_config-')
         tmp << "version: ""2""\n"
+        tmp << "web_allow_hosts:\n"
+        ALLOW_HOSTS.each {|host| tmp << "  - #{host}\n"}
         tmp.flush
         tmp.close
-
         tmp
       end
     end
