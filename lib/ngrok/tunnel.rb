@@ -132,8 +132,10 @@ module Ngrok
       def create_empty_config_file(allow_hosts)
         tmp = Tempfile.new('ngrok_config-')
         tmp << "version: ""2""\n"
-        tmp << "web_allow_hosts:\n"
-        allow_hosts.each {|host| tmp << "  - #{host}\n"}
+        if allow_hosts.any?
+          tmp << "web_allow_hosts:\n"
+          allow_hosts.each {|host| tmp << "  - #{host}\n"}
+        end
         tmp.flush
         tmp.close
         tmp
