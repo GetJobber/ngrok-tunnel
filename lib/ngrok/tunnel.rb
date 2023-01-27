@@ -13,7 +13,8 @@ module Ngrok
       attr_reader :pid, :ngrok_url, :ngrok_url_https, :status
 
       def init(params = {})
-        @params = {addr: 3001, timeout: 10, config: create_empty_config_file.path}.merge(params)
+        allow_hosts = params[:allow_hosts] || []
+        @params = {addr: 3001, timeout: 10, config: create_empty_config_file(allow_hosts).path}.merge(params)
         @status = :stopped unless @status
       end
 
@@ -128,12 +129,15 @@ module Ngrok
         /^ngrok version [012]\./.match?(@version)
       end
 
-      def create_empty_config_file
+      def create_empty_config_file(allow_hosts)
         tmp = Tempfile.new('ngrok_config-')
         tmp << "version: ""2""\n"
+        if allow_hosts.any?
+          tmp << "web_allow_hosts:\n"
+          allow_hosts.each {|host| tmp << "  - #{host}\n"}
+        end
         tmp.flush
         tmp.close
-
         tmp
       end
     end
